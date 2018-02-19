@@ -31,6 +31,8 @@ def classify(inX, dataSet, labels, k):
 	dataSetSize = dataSet.shape[0]
 	# [inx] => [inx, inx, ..., inx]
 	diffMat = tile(inX, (dataSetSize, 1)) - dataSet
+	# Element-wise multiplication : [x, y]*[x, y] = x^2 + y^2
+	# axis 0: row dir; axis 1: column dir
 	# [[x0,y0],[x1, y1]].sum(axis=0) = [(x0+x1), (y0+y1)]
 	# [[x0,y0],[x1, y1]].sum(axis=1) = [(x0+y0), (x1+y1)]
 	distanceSqr = (diffMat * diffMat).sum(axis=1)
@@ -55,6 +57,9 @@ def datingClassTest():
 		if (res != labels[i]): 
 			errorCnt += 1
 	print "Error rate is: %f" % (errorCnt/float(m))
+
+if __name__ == "__main__":
+	datingClassTest()
 
 
 
