@@ -1,12 +1,6 @@
 from numpy import *
 import operator
 
-
-def createDataSet():
-	groups = array([[1.0, 1.1], [1.0, 0.9], [0.1, 0.2], [0.0, 0.1]])
-	labels = ['a','a','b','b']
-	return groups, labels
-
 def normDataSet(dataSet):
 	ranges = dataSet.max(0) - dataSet.min(0)
 	dataSet /= ranges
@@ -27,6 +21,15 @@ def realDataSet():
 	file.close()
 	return normDataSet(dataSet), labels
 
+'''
+@params
+	inX: input test data
+	dataSet: train data set
+	labels: train data set label
+	k： kNN's k 
+@returns
+    label for input
+'''
 def classify(inX, dataSet, labels, k):
 	dataSetSize = dataSet.shape[0]
 	# [inx] => [inx, inx, ..., inx]

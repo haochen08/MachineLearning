@@ -49,12 +49,12 @@ def splitDataSet(dataSet, axis, value):
 
 
 def chooseBestFeatureToSplit(dataSet):
-    numFeatures = len(dataset) - 1
-    baseEntropy = calcShannonEnt(dataset)
+    numFeatures = len(dataSet[0]) - 1
+    baseEntropy = calcShannonEnt(dataSet)
     bestInfoGain = 0.0
     bestFeature = -1
     for i in range(numFeatures):
-        featList = [example[i] for example in dataset]
+        featList = [example[i] for example in dataSet]
         uniqueVals = set(featList)
         newEntropy = 0.0
         for value in uniqueVals:
@@ -68,11 +68,11 @@ def chooseBestFeatureToSplit(dataSet):
     return bestFeature
 
 
-def buildDecisionTree(dataSet):
+def buildDecisionTree(dataSet, labels):
     class_list = [e[-1] for e in dataSet]
     # All elements are in the same class, return the class value 
     if len(dataSet) == class_list.count(class_list[0]):
-        return class_list[0]
+        return class_list[0]  # classLabel
     # Run out of any attribute
     # Just vote for the majority
     if len(dataSet[0]) == 1:
@@ -80,24 +80,50 @@ def buildDecisionTree(dataSet):
 
     # More than one feature, choose the best feature to split
     bestFeature = chooseBestFeatureToSplit(dataSet)
-    myTree = {bestFeature: {}}
+    bestFeatureLabel = labels[bestFeature]
+    # Delete in case be used again
+    del(labels[bestFeature])
+
+    myTree = {bestFeatureLabel: {}}
     featValues = [example[bestFeature] for example in dataSet]
     uniqueVals = set(featValues)
     for value in uniqueVals:
-        myTree[bestFeature][value] = buildDecisionTree(splitDataSet(dataSet, bestFeature, value))
+        subLabels = labels[:]
+        myTree[bestFeatureLabel][value] = buildDecisionTree(splitDataSet(dataSet, bestFeature, value), subLabels)
     
     return myTree
 
-        
+def classifyRecur(tree, labels, testVec):
+    featureLabel = tree.keys()[0]
+    featureIndex = labels.index(featureLabel)
+    for k,v in tree[featureLabel].iteritems():
+        if k == testVec[featureIndex]:
+            if  type(v).__name__ == "dict":
+                classLabel = classifyRecur(v, labels, testVec)
+            else: 
+                classLabel = v
+    return classLabel
+
+def classify(dataSet, labels, testVec):
+    tpLabels = labels[:]
+    decisionTree = buildDecisionTree(dataSet, tpLabels)
+    return classifyRecur(decisionTree, labels, testVec)
+
+
 def createDataSet():
     dataSet = [[1, 1, 'yes'],
                [1, 1, 'yes'],
                [1, 0, 'no'],
                [0, 1, 'no'],
                [0, 1, 'no']]
-    labels = ['no surfacing','flippers']
+    labels = ['no surfacing','flippers', 'fish']
     #change to discrete values
     return dataSet, labels
+
+if __name__ == "__main__":
+    dataSet, labels = createDataSet()
+    print classify(dataSet, labels, [0,0])
+
 
 
 
